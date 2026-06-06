@@ -1,7 +1,7 @@
 # Registro de Defectos
 
 Este documento recopila los defectos encontrados durante la ejecución de pruebas unitarias del proyecto **Registraduría**.
-Cada defecto debe documentarse claramente para facilitar su análisis y corrección.
+Cada defecto documenta el ciclo TDD: detectado en fase **Roja** y resuelto en fase **Verde**.
 
 ---
 
@@ -9,40 +9,55 @@ Cada defecto debe documentarse claramente para facilitar su análisis y correcci
 
 ### Defecto 01
 
-- **Caso de prueba**: Persona con edad -1 (edad inválida).
+- **Caso de prueba**: `shouldRejectInvalidAgeNegative` — Persona con edad -1 (edad inválida).
 - **Entrada**: `Person(name="Juan", id=101, age=-1, gender=MALE, alive=true)`
 - **Resultado esperado**: `INVALID_AGE`
-- **Resultado obtenido**: `VALID`
+- **Resultado obtenido (antes del fix)**: `VALID`
 - **Causa probable**: Falta de validación de edad negativa en `Registry.registerVoter`.
-- **Estado**: Abierto
+- **Corrección aplicada**: Se agregó la condición `if (p.getAge() < 0 || p.getAge() > MAX_AGE) return RegisterResult.INVALID_AGE;` en `Registry.java`.
+- **Estado**: Resuelto
 
 ---
 
 ### Defecto 02
 
-- **Caso de prueba**: Persona muerta.
+- **Caso de prueba**: `shouldRejectDeadPerson` — Persona muerta.
 - **Entrada**: `Person(name="Ana", id=102, age=45, gender=FEMALE, alive=false)`
 - **Resultado esperado**: `DEAD`
-- **Resultado obtenido**: `VALID`
-- **Causa probable**: No se evalúa la condición `alive=false`.
-- **Estado**: Abierto
+- **Resultado obtenido (antes del fix)**: `VALID`
+- **Causa probable**: No se evaluaba la condición `alive=false`.
+- **Corrección aplicada**: Se agregó `if (!p.isAlive()) return RegisterResult.DEAD;` en `Registry.java`.
+- **Estado**: Resuelto
 
 ---
 
 ### Defecto 03
 
-- **Caso de prueba**: Registro duplicado con el mismo `id`.
+- **Caso de prueba**: `shouldReturnDuplicatedWhenSameIdRegisteredTwice` — Registro duplicado con el mismo `id`.
 - **Entradas**:
   - Persona 1: `Person(name="Carlos", id=200, age=30, gender=MALE, alive=true)`
   - Persona 2: `Person(name="Carla", id=200, age=25, gender=FEMALE, alive=true)`
 - **Resultado esperado**:
   - Persona 1 → `VALID`
   - Persona 2 → `DUPLICATED`
-- **Resultado obtenido**:
+- **Resultado obtenido (antes del fix)**:
   - Persona 1 → `VALID`
   - Persona 2 → `VALID`
-- **Causa probable**: No hay verificación de `id` previamente registrado.
-- **Estado**: Abierto
+- **Causa probable**: No había verificación de `id` previamente registrado.
+- **Corrección aplicada**: Se incorporó `Set<Integer> registeredIds` en `Registry.java` para rastrear los `id` ya inscritos.
+- **Estado**: Resuelto
+
+---
+
+### Defecto 04
+
+- **Caso de prueba**: `shouldRejectUnderageAt17` — Persona menor de edad.
+- **Entrada**: `Person(name="Sofia", id=103, age=17, gender=FEMALE, alive=true)`
+- **Resultado esperado**: `UNDERAGE`
+- **Resultado obtenido (antes del fix)**: `VALID`
+- **Causa probable**: No existía validación de edad mínima (18 años) en `Registry.registerVoter`.
+- **Corrección aplicada**: Se agregó `if (p.getAge() < MIN_AGE) return RegisterResult.UNDERAGE;` con constante `MIN_AGE = 18`.
+- **Estado**: Resuelto
 
 ---
 
@@ -50,9 +65,10 @@ Cada defecto debe documentarse claramente para facilitar su análisis y correcci
 
 | ID | Caso de Prueba | Entrada | Resultado Esperado | Resultado Obtenido | Causa Probable | Estado |
 |-----|---------------------|---------|--------------------|--------------------|----------------|--------|
-| 01 | Edad inválida | `Person(id=101, age=-1, alive=true)` | `INVALID_AGE` | `VALID` | No se valida edad negativa | Abierto |
-| 02 | Persona muerta | `Person(id=102, age=45, alive=false)` | `DEAD` | `VALID` | No se evalúa condición `alive=false` | Abierto |
-| 03 | Registro duplicado | `Person(id=200, age=30, alive=true)` + `Person(id=200, age=25, alive=true)` | 1º → `VALID` 2º → `DUPLICATED` | 1º → `VALID` 2º → `VALID` | No hay verificación de `id` duplicado | Abierto |
+| 01 | Edad inválida negativa | `Person(id=101, age=-1, alive=true)` | `INVALID_AGE` | `VALID` | No se validaba edad negativa | **Resuelto** |
+| 02 | Persona muerta | `Person(id=102, age=45, alive=false)` | `DEAD` | `VALID` | No se evaluaba condición `alive=false` | **Resuelto** |
+| 03 | Registro duplicado | `Person(id=200)` + `Person(id=200)` | 1º → `VALID`, 2º → `DUPLICATED` | 1º → `VALID`, 2º → `VALID` | No había verificación de `id` duplicado | **Resuelto** |
+| 04 | Menor de edad (17 años) | `Person(id=103, age=17, alive=true)` | `UNDERAGE` | `VALID` | No se validaba edad mínima de 18 | **Resuelto** |
 
 ---
 
@@ -68,6 +84,7 @@ Cada defecto debe documentarse claramente para facilitar su análisis y correcci
 
 ## Observaciones
 
-- Se pueden usar **ambos formatos** o elegir uno como estándar de equipo.
-- El objetivo es **gestionar la calidad del software** y **demostrar un proceso sistemático de testing**.
-- Mantener este archivo actualizado durante todo el ciclo de desarrollo.
+- Todos los defectos fueron detectados durante la fase **Roja (RED)** del ciclo TDD.
+- Cada defecto fue corregido con la implementación mínima necesaria en la fase **Verde (GREEN)**.
+- Las constantes `MIN_AGE = 18` y `MAX_AGE = 120` fueron extraídas durante la fase de **Refactor**.
+- La cobertura final con JaCoCo supera el 95% de instrucciones y el 100% de ramas.

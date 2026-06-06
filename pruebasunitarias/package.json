@@ -1,0 +1,15 @@
+{
+  "name": "pruebasunitarias",
+  "version": "1.0.0",
+  "description": "Taller de Pruebas Unitarias - TDD con TypeScript y Vitest",
+  "scripts": {
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "coverage": "vitest run --coverage"
+  },
+  "devDependencies": {
+    "@vitest/coverage-v8": "^2.0.0",
+    "typescript": "^5.0.0",
+    "vitest": "^2.0.0"
+  }
+}

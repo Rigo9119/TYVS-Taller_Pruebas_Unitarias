@@ -1,0 +1,8 @@
+Estudiante
+==========
+
+- Rigo Rosero Castillo
+
+Maestría en Ingeniería de Software
+Universidad de La Sabana
+Curso: Testing y Validación de Software – 2025
